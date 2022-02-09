@@ -1,33 +1,22 @@
 //import express and router
-    const express = require ("express");
-    const router = express.Router();
+const express = require("express");
+const router = express.Router();
+const authRoutes = require("./authRoutes");
+const restaurantRoutes = require("./restaurantRoutes");
+const userRoutes = require("./userRoutes")
 
-// import custom controllers
-    const restaurantController = require("../controller/restaurantController")
+
+module.exports = () => {
+
+    router.get('/', (req, res) => {
+        res.send('Welcome to chefs hat')
+
+    });
 
 
-
-// creating routes within an export function
-    module.exports = () => {
-
-    router.get("/restaurant", 
-        restaurantController.getRestaurant
-    );
-
-    router.post('/restaurant',
-    restaurantController.postRestaurant
-    );
-
-    router.get("/restaurant/:id",
-    restaurantController.getRestaurantById);
-
-  router.put('/restaurant/:id',
-    restaurantController.putRestaurantById
-  );
-
-  router.delete('/restaurant/:id',
-    restaurantController.deleteRestaurantById
-  );
-
-return router
+    // SUB ROUTES
+    router.use('/restaurant', restaurantRoutes())
+    router.use('/auth', authRoutes())
+    router.get('/user', userRoutes())
+    return router
 }

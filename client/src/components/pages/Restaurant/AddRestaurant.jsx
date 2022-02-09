@@ -2,8 +2,9 @@
 import React, { Fragment , useState} from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios'
+import "../../css/AddRestaurant.css"
 // Import modules
-import { Card, Form, Button, Row,  } from 'react-bootstrap';
+import { Card, Form, Button, Row, Spinner  } from 'react-bootstrap';
 import { TiArrowBack } from 'react-icons/ti';
 
 
@@ -11,12 +12,14 @@ const AddRestaurant = () => {
 
 // State managment and initial States
   const [state, setState] = useState("IDLE")
+// 
+  const [fileName, setFileName] = useState("Choose File")
 
   const [data, setData] = useState({
     RestaurantName:"",
     RestaurantCategory:"Fast & Casual",
     RestaurantCuisine:"Italian",
-    RestaurantRating:"",
+    RestaurantRating:"1",
     RestaurantImage:""
    
   })
@@ -32,6 +35,17 @@ const handleTextChange = (e) => setData({
 
 });
                                   
+// handling file change
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+
+    setFileName(file.name)
+    setData({
+      ...data, RestaurantImage: file
+    })
+
+  }
+
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -41,10 +55,10 @@ try {
   const formData = prepareFormData(data);
   const formConfig = {
     headers: {
-      'content-type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data'
     }
   };
-  const response = axios.post('./api/restaurant',
+  const response = await axios.post('./api/restaurant',
   formData,
   formConfig)
   console.log(response);
@@ -52,7 +66,7 @@ try {
   history.push('/restaurant')
 
 }catch (err) {
-  console.log(err);
+  console.log(err.response.data);
   setState("ERROR");
 }}
 
@@ -66,20 +80,15 @@ function prepareFormData(data){
   return formData
 }
 
-
-
-
   return (
     <Fragment>
-
-      <Form onSubmit={ handleSubmit }>
-        <div className="mt-5 pt-5">
+        <div className="NewRestarant">
           <Card>
             <Card.Header className="text-center">
               <strong>ADD NEW RESTAURANT</strong>
             </Card.Header>
             <Card.Body>
-              <Form >
+              <Form onSubmit={ handleSubmit }>
                 {/* Restaurant name */}
                 <Form.Group controlId="RestaurantName">
                   <Form.Label>Restaurant Name: </Form.Label>
@@ -163,21 +172,27 @@ function prepareFormData(data){
                   <Form.File 
                     id="customFile"
                     type="file"
-                    label="Choose File..."
+                    label={fileName}
                     className="mb-4"
-                    onChange={ handleTextChange }
+                    onChange={ handleFileChange }
                     custom
-                    
                   />
                 </Form.Group>
+
+
+
                 {/* button */}
                 <div>
-                  <Button
+                  <Button 
                     variant="success" 
                     type="submit"
-                    className="btn-block"
-                  > 
-                    Submit
+                    className={state === "LOADING" ? "button-gradient-loading btn-block" : "btn-block"}
+                    disabled={state === "LOADING"}
+                  >
+                    {state === "LOADING" 
+                      ? <Spinner className="mb-1" as="span" animation="border" size="sm" role="status" aria-hidden="true"/> 
+                      : 'Submit'
+                    }
                   </Button>
                 </div>
               </Form>
@@ -192,7 +207,7 @@ function prepareFormData(data){
             {' '}Back to restaurant Menu
           </Link>
         </Row>
-      </Form>
+      
    
     </Fragment>
   )

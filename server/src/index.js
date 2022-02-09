@@ -4,6 +4,7 @@
     require("dotenv").config();
     const morgan = require ("morgan");
     const fileUpload = require('express-fileupload');
+    
 // start app using express
     const app = express();
 
@@ -24,6 +25,11 @@
     app.use(express.json());
     app.use(express.urlencoded({extended: false}));
 
+// ? file parsing middleware
+    app.use(fileUpload());
+
+
+
 //? All routes hit at
     app.use('/api', routes())
 
@@ -32,8 +38,6 @@
     next(ApiError.notFound());
   });
   
-// ? file parsing middleware
-app.use(fileUpload());
 
 //! Error Handler Middleware from our controller.
     app.use(apiErrorHandler);
